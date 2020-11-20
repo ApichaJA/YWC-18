@@ -87,7 +87,7 @@
           </div>
         </div>
         
-        <div class="showorder-box ml-4">
+        <div class="showorder-box">
           <div class="order-box" v-for="merchantOrder in merchants"
               :key="merchantOrder.shopNameTH">
               <img :src="merchantOrder.coverImageId" class="order-img" alt="" width="100px" height="100px">
@@ -299,6 +299,7 @@ export default {
 }
 
 .showorder-box{
+  margin-left: 1.5rem!important;
   width: 70vw;
 }
 
@@ -316,6 +317,30 @@ export default {
   .order-box{
     height: 15em;
   }
+}
+
+@media only screen and (max-width: 640px) {
+  .search-box{
+    display: none;
+  }
+  .showorder-box{
+    width: unset;
+    margin-left: 0!important;
+  }
+  .order-box{
+    display: inline-block;
+    width: 100%;
+  }
+  .order-img{
+  object-fit: cover;
+  height: 300px!important;
+  width: 100%!important;
+}
+
+.order-box-content{
+  border: 1px solid lightgray;
+    margin-bottom: 10em;
+}
 }
 
 
