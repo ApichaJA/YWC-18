@@ -1,0 +1,143 @@
+<template>
+  <div>
+    <nav class="navbar">
+      <a class="navbar-brand" href="/">
+        <img
+          src="@/assets/klk.png"
+          width="60px"
+          height="40px"
+        />
+        <i class="logo-klk-text">คนละครึ่ง</i>
+      </a>
+      <div class="search-bar">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <button class="btn input-group-text"><i class="fas fa-map-marker-alt"></i>พื้นที่ใกล้ฉัน</button>
+          </div>
+          <input
+            type="text"
+            placeholder="ค้นหา ชื่อ ร้านอาหาร และเครื่องดื่ม ร้านธงฟ้า ร้านค้า OTOP และสินค้าทั่วไป"
+            class="form-control"
+            v-model="message"
+            :change="search()"
+          />
+          <div class="input-group-append">
+            <button class="btn input-group-text"><i class="fas fa-search"></i></button>
+          </div>
+        </div>
+      </div>
+      <span class="filter-text"><i class="fas fa-filter"></i></span>
+    </nav>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      message: "",
+    };
+  },
+
+  methods: {
+    search: function () {
+      this.$store.dispatch("searching", this.message);
+    },
+  },
+};
+</script>
+
+<style scoped>
+.navbar{
+  padding: .3em 5vw;
+  display: flex;
+  align-items: center;
+}
+
+
+.navbar-brand{
+  width: 4vw;
+  text-align: center;
+  margin-right: 10vw;
+}
+
+.navbar-brand img{
+  margin-right: .5em;
+}
+
+.logo-klk-text{
+  color: #28387b;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.filter-text{
+  display: none;
+  color: #28387b;
+}
+
+@media only screen and (max-width: 1000px) {
+  .logo-klk-text {
+    display: none;
+  }
+  .navbar-brand{
+  margin-right: 40px;
+  display: inline-block;
+}
+.search-bar{
+  transform: scale(.9);
+}
+
+.input-group-prepend .input-group-text{
+  font-size: 12px!important;
+}
+
+.filter-text{
+  display: inline-flex;
+  font-size: 12px!important;
+  color: #28387b;
+}
+
+}
+@media only screen and (max-width: 350px) {
+  .navbar {
+    transform: scale(.9);
+    padding: 0;
+}
+
+}
+
+.navbar{
+  justify-content: center;
+}
+
+.search-bar{
+  display: flex;
+  width: 70vw;
+}
+
+.form-control{
+  font-size: 14px;
+}
+
+.input-group-prepend .input-group-text{
+  font-weight: bold;
+  font-size: 14px;
+  background-color: #fff;
+  border-radius: 8px 0 0 8px;
+  padding-right: 5em;
+}
+.input-group-prepend .input-group-text i{
+  padding-right:.3rem;
+}
+
+.input-group-text{
+  background-color: whitesmoke;
+  border-radius: 0 8px 8px 0;
+}
+
+.fa-search{
+  font-size: 10px;
+  margin: 0 .5vw;
+}
+</style>
