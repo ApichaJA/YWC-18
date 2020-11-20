@@ -26,4 +26,13 @@ export default {
   text-align: center;
   color: #000;
 }
+
+body{
+  background-image: url('./assets/klk-bg.png');
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+
+}
+
 </style>

@@ -3,7 +3,7 @@
     <div class="navbar-page">
       <span class="navbar-page-text" v-on:click="selectpage = true" :class="{'selectunderline':selectpage}" >หน้าแรก</span>
       <span class="navbar-page-text" >/</span>
-      <span class="navbar-page-text" v-on:click="selectpage = false" :class="{'selectunderline':!selectpage}">ค้นหา</span>
+      <span class="navbar-page-text" v-on:click="selectpage = false, findFocus()" :class="{'selectunderline':!selectpage}">ค้นหา</span>
     </div>
     <div class="main-home">
       <div class="main-text">
@@ -15,15 +15,16 @@
         <div class="search-box">
           <span class="main-text">ประเภทร้านค้า</span>
           <div class="side-search-box typeshop-radio">
-            <div class="shop-radio">
+            <div class="shop-radio" v-on:click="subcategoriesSelect = 0">
               <label class="label-mouse-over"
-                ><input type="radio" name="typeshop-radio" checked /><span class="radio-text">ทั้งหมด</span></label
+                ><input type="radio" name="typeshop-radio" checked class="typeshop-radio-main"/><span class="radio-text">ทั้งหมด</span></label
               >
             </div>
             <div
               class="shop-radio"
-              v-for="shoptype in categories"
+              v-for="(shoptype, index) in categories"
               :key="shoptype.name"
+               v-on:click="subcategoriesSelect = (index+1)"
             >
               <label class="label-mouse-over">
                 <input class="radio-text" type="radio" name="typeshop-radio" />
@@ -71,12 +72,12 @@
           <div class="side-search-box typeshop-radio">
             <div class="shop-radio">
               <label class="label-mouse-over"
-                ><input type="radio" name="allcategories-radio" checked /><span class="radio-text">ทั้งหมด</span></label
+                ><input type="radio" name="allcategories-radio" checked class="typeshop-radio-main" /><span class="radio-text">ทั้งหมด</span></label
               >
             </div>
             <div
               class="shop-radio"
-              v-for="(allCategories) in subcategories[3]"
+              v-for="(allCategories) in subcategories[subcategoriesSelect]"
               :key="allCategories.name"
             >
               <label class="label-mouse-over">
@@ -88,8 +89,10 @@
         </div>
         
         <div class="showorder-box">
-          <div class="order-box" v-for="merchantOrder in merchants"
+          <div v-show="foundOrder" style="font-size:5vw; align-item:center; margin: 5em 0">ไม่พบรายการ</div>
+          <div v-show="!foundOrder && searchingOrder(merchantOrder.shopNameTH, merchantOrder.addressProvinceName)" class="order-box" v-for="merchantOrder in merchants"
               :key="merchantOrder.shopNameTH">
+              <div class="filter-order">
               <img :src="merchantOrder.coverImageId" class="order-img" alt="" width="100px" height="100px">
               <div class="order-box-content">
                 <div class="order-top-content">
@@ -123,8 +126,9 @@
                 </div>
               </div>
           </div>
+          </div>
 
-          <div class="show-more mt-5">
+          <div v-show="!foundOrder" class="show-more mt-5">
             <button class="show-more-btn">ดูเพิ่มเติม</button>
           </div>
         </div>
@@ -145,12 +149,17 @@ export default {
       priceRange: [],
       merchants: [],
 
+
       provincesSelect: 'พื้นที่ใกล้ฉัน',
       priceRangeSelect: 'กรุณาเลือก',
+      subcategoriesSelect: 0,
+      searching: '',
+      foundOrder: false,
 
       selectpage: true,
     };
   },
+
 
   methods:{
     checkisOpen(data){
@@ -178,6 +187,43 @@ export default {
         stock+=ary
       })
       return stock
+    },
+
+    findFocus(){
+      document.querySelector('.focussearch').focus();
+    },
+
+    searchingOrder(shopName, province){
+      if(this.$store.getters.getOrder === ''){
+        if(this.provincesSelect === 'สถานที่ทั้งหมด'|| this.provincesSelect === 'พื้นที่ใกล้ฉัน'){
+          this.foundOrder = false
+          return true
+      }
+        else if(this.provincesSelect === province){
+          this.foundOrder = false
+          return true
+        }
+        else{
+          this.foundOrder = true
+        }
+      }
+      else if(this.$store.getters.getOrder !== ''){
+        this.provincesSelect = 'สถานที่ทั้งหมด'
+        document.querySelector('.typeshop-radio-main').checked = true;
+        for (let index = 0; index < this.$store.getters.getOrder.length; index++) {
+          if(this.$store.getters.getOrder[index].toLowerCase() === shopName[index].toLowerCase()){
+            return true
+          }
+        }
+        
+      }
+      //if(this.$store.getters.getOrder === ''){
+      //  return false
+      //} || this.provincesSelect === province
+      //if(e === "Kanysorn Cafe"){
+        //return false
+      //}
+      //this.provinces = this.$store.getters.getOrder;
     }
   },
 
@@ -200,6 +246,7 @@ export default {
     fetch.data.provinces.forEach((element) => {
       this.provinces.push(element);
     });
+      this.$store.dispatch("stackProvinces", this.provinces);
 
     for (let index = 0; index < fetch.data.priceRange.length; index++) {
       this.priceRange.push(fetch.data.priceRange[index]);
@@ -208,13 +255,17 @@ export default {
         fetch.data.merchants.forEach((element) => {
       this.merchants.push(element);
     });
-      console.log(this.merchants)
   },
 };
 </script>
 
 <style scoped>
 .main-home {
+      background-image: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.7) 10%,
+    rgba(0, 0, 0, 0)
+  );
   padding: 1rem 1rem;
 }
 
@@ -236,7 +287,6 @@ export default {
 
 .main-section {
   display: flex;
-  justify-content: center;
   margin-top: 2rem;
 }
 
@@ -247,6 +297,7 @@ export default {
 }
 
 .search-box {
+  background-color: #fff;
   width: 22rem;
   border: 1px solid #e2e8f0;
   border-radius: 5px;
@@ -300,13 +351,16 @@ export default {
 
 .showorder-box{
   margin-left: 1.5rem!important;
-  width: 70vw;
+  width: 100%;
+}
+.filter-order{
+  display: flex;
 }
 
 .order-box{
+  background-color: #fff;
   display: flex;
   border: 1px solid #e2e8f0;
-  border-radius: 5px;
   margin-bottom: .3em;
   height: 14em;
   padding: .3em;
@@ -328,6 +382,8 @@ export default {
     margin-left: 0!important;
   }
   .order-box{
+    margin-top: 5vw;
+    padding: 0;
     display: inline-block;
     width: 100%;
   }
@@ -336,16 +392,32 @@ export default {
   height: 300px!important;
   width: 100%!important;
 }
+.main-section {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
 
 .order-box-content{
+  background-color: #fff;
   border: 1px solid lightgray;
-    margin-bottom: 10em;
+  margin-bottom: 10em;
+}
+
+.show-more-btn{
+  width: 25em!important;
+  height: 3em;
+}
+
+.filter-order{
+  display: block;
 }
 }
 
 
 .order-img{
   object-fit: cover;
+  border-radius: 2px;
   height: 100%;
   width: 200px;
 }
@@ -445,7 +517,7 @@ width: fit-content;
   background-color: #fff;
   border: 1px solid lightgray;
   border-radius: 5px;
-
-  padding: .6em 11em;
+  width: 30em;
+  height: 3em;
 }
 </style>
