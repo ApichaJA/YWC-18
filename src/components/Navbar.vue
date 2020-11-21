@@ -130,6 +130,16 @@ export default {
   font-size: 12px!important;
   color: #28387b;
 }
+
+.input-group-prepend{
+  display: none!important;
+}
+
+.form-control{
+  margin-left: 1em;
+    border-top-left-radius: 8px!important;
+    border-bottom-left-radius: 8px!important;
+}
 }
 
 @media only screen and (max-width: 350px) {
