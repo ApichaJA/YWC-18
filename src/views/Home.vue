@@ -46,7 +46,7 @@
                 <a class="dropdown-item" v-on:click="provincesSelect = 'พื้นที่ใกล้ฉัน'"><i class="fas fa-map-marker-alt" style="margin-right:.7em"></i>พื้นที่ใกล้ฉัน</a>
                 <a class="dropdown-item" v-on:click="provincesSelect = 'สถานที่ทั้งหมด'"><i class="fas fa-map-marker-alt" style="margin-right:.7em"></i>สถานที่ทั้งหมด</a>
                 <a  v-for="provincestype in provinces"
-              :key="provincestype" class="dropdown-item" v-on:click="provincesSelect = provincestype">{{provincestype}}</a>
+              :key="provincestype" class="dropdown-item" v-on:click="provincesSelect = provincestype,searchingOrder('', provincesSelect)">{{provincestype}}</a>
               </div>
             </div>
           </div>
@@ -195,20 +195,21 @@ export default {
 
     searchingOrder(shopName, province){
       if(this.$store.getters.getOrder === ''){
-        if(this.provincesSelect === 'สถานที่ทั้งหมด'|| this.provincesSelect === 'พื้นที่ใกล้ฉัน'){
+        if(this.provincesSelect === 'สถานที่ทั้งหมด'|| this.provincesSelect === 'พื้นที่ใกล้ฉัน' || this.provincesSelect === province){
+           //this.provincesSelect = province
           this.foundOrder = false
           return true
       }
-        else if(this.provincesSelect === province){
-          this.foundOrder = false
-          return true
-        }
         else{
           this.foundOrder = true
         }
       }
       else if(this.$store.getters.getOrder !== ''){
-        this.provincesSelect = 'สถานที่ทั้งหมด'
+        if(province === 'สถานที่ทั้งหมด'|| province === 'พื้นที่ใกล้ฉัน'){
+          this.provincesSelect = province
+          this.foundOrder = true
+      }
+        //this.provincesSelect = 'สถานที่ทั้งหมด'
         document.querySelector('.typeshop-radio-main').checked = true;
         for (let index = 0; index < this.$store.getters.getOrder.length; index++) {
           if(this.$store.getters.getOrder[index].toLowerCase() === shopName[index].toLowerCase()){
@@ -217,6 +218,7 @@ export default {
         }
         
       }
+
       //if(this.$store.getters.getOrder === ''){
       //  return false
       //} || this.provincesSelect === province
